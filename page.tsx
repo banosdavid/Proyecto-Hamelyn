@@ -1,126 +1,121 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PokemonList } from '@/components/pokemon/PokemonList';  // Asegúrate de que PokemonList esté exportado correctamente
-import { usePokemon } from '@/lib/hooks/usePokemon';  // Hook para obtener los Pokémon
-import Loading from "@/components/loading";  // Correcta si está en el directorio correcto
-import { PokemonDetails } from "@lib/types";  // Usando el alias @lib
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, Users, Swords, Shield } from 'lucide-react';
+import { PokemonTypeChart } from '@/components/PokemonTypeChart';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { usePokemon } from '@/lib/hooks/usePokemon';
 
-// Enum para manejar los tipos de error
-enum FetchError {
-  NetworkError = "NetworkError",
-  DataError = "DataError",
-}
+export default function Dashboard() {
+  const { pokemon, isLoading, error } = usePokemon();
 
-export default function PokemonListPage() {
-  const { pokemon, isLoading, error } = usePokemon();  // Llamada al hook para obtener los datos de los Pokémon
-  
-  const [currentPage, setCurrentPage] = useState(1);  // Página actual
-  const [totalPages, setTotalPages] = useState(1);  // Total de páginas
-  const [pokemonData, setPokemonData] = useState<PokemonDetails[]>([]);  // Pokémon a mostrar en la página
+  // Asegurarse de que 'pokemon' sea un arreglo antes de calcular las estadísticas
+  const stats = pokemon ? {
+    totalPokemon: pokemon.length,
+    types: new Set(pokemon.flatMap((p) => p.types)).size,
+    avgAttack: Math.round(
+      pokemon.reduce((acc, p) => acc + p.stats.attack, 0) / pokemon.length || 0
+    ),
+    avgDefense: Math.round(
+      pokemon.reduce((acc, p) => acc + p.stats.defense, 0) / pokemon.length || 0
+    ),
+  } : {};
 
-  // Asegurarse de que 'pokemon' sea válido antes de actualizar el estado
-  useEffect(() => {
-    if (pokemon) {
-      setPokemonData(pokemon);  // Actualiza el estado con los datos de Pokémon
-      setTotalPages(Math.ceil(pokemon.length / 20));  // Calcula el número de páginas
-    }
-  }, [pokemon]);
-
-  // Manejar el cambio de página
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);  // Actualiza la página actual
-  };
-
-  // Cargar la página actual de Pokémon
-  const currentPokemonPage = pokemonData.slice((currentPage - 1) * 20, currentPage * 20);
-  return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8">Pokemon List</h1>
-      
-      {isLoading ? (
-        <Loading />  // Muestra el componente de carga mientras se obtienen los Pokémon
-      ) : error ? (
-        <div className="text-red-500">{error}</div>  // Si hay un error, se muestra aquí
-      ) : (
-        <PokemonList 
-          pokemons={currentPokemonPage}  // Pasa los Pokémon para la página actual
-          isLoading={isLoading}  // Pasa el estado de carga
-          currentPage={currentPage}  // Página actual
-          total={pokemonData.length}  // Total de Pokémon disponibles
-          totalPages={totalPages}  // Total de páginas
-          onPageChange={handlePageChange}  // Función para cambiar de página
-        />
-      )}
-    </div>
-  );
-}
-
-export function PokemonPage() {
-  const [loading, setLoading] = useState(true);
-  const [pokemon, setPokemon] = useState<PokemonDetails | null>(null);  // Cambié el tipo a PokemonDetails por claridad
-  const [error, setError] = useState<string | null>(null); // Mejor control de los errores
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch("https://pokeapi.co/api/v2/pokemon/1");
-
-        if (!response.ok) {
-          throw new Error(FetchError.NetworkError);
-        }
-
-        const data = await response.json();
-
-        // Verificamos si los datos cumplen con la estructura de `PokemonDetails`
-        const pokemonData: PokemonDetails = {
-          name: data.name,
-          height: data.height,
-          weight: data.weight,
-          sprites: {
-            front_default: data.sprites.front_default,
-          },
-        };
-        setPokemon(pokemonData);
-        setLoading(false);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError("Failed to fetch Pokémon data.");
-        } else {
-          setError("An unknown error occurred.");
-        }
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      setLoading(false); // Limpiar el estado de carga si el componente se desmonta
-    };
-  }, []);
-
-  // Mostrar el componente de carga mientras se obtiene el Pokémon
-  if (loading) {
-    return <Loading />;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <LoadingSpinner />
+        <span className="ml-3 text-lg text-gray-600">Loading Dashboard...</span>
+      </div>
+    );
   }
 
-  // Mostrar error si ocurre algún problema
   if (error) {
-    return <p className="text-red-500">{error}</p>;
-  }
-
-  // Verificar si pokemon es null antes de acceder a sus propiedades
-  if (!pokemon) {
-    return <p>No Pokémon data found.</p>;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+    
   }
 
   return (
     <div>
-      <h1>{pokemon.name}</h1>
-      <img src={pokemon.sprites.front_default} alt={pokemon.name} />
-      <p>Height: {pokemon.height}</p>
-      <p>Weight: {pokemon.weight}</p>
+      <h1 className="text-3xl font-bold mb-8">Dashboard Overview</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+          <CardContent className="pt-4">
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-blue-600">Total Pokemon</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {stats.totalPokemon || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
+          <CardContent className="pt-4">
+            <div className="flex items-center">
+              <div className="p-2 bg-purple-500 rounded-lg">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-purple-600">Types</p>
+                <p className="text-2xl font-bold text-purple-700">
+                  {stats.types || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-50 to-red-100">
+          <CardContent className="pt-4">
+            <div className="flex items-center">
+              <div className="p-2 bg-red-500 rounded-lg">
+                <Swords className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-red-600">Avg. Attack</p>
+                <p className="text-2xl font-bold text-red-700">
+                  {stats.avgAttack || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100">
+          <CardContent className="pt-4">
+            <div className="flex items-center">
+              <div className="p-2 bg-green-500 rounded-lg">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-green-600">Avg. Defense</p>
+                <p className="text-2xl font-bold text-green-700">
+                  {stats.avgDefense || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pokemon Type Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PokemonTypeChart pokemon={pokemon || []} /> {/* Asegúrate de pasar un arreglo vacío si no hay datos */}
+        </CardContent>
+      </Card>
     </div>
   );
 }
