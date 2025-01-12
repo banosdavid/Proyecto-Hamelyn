@@ -118,3 +118,30 @@ Maneja efectos secundarios en componentes funcionales, como:
 Llamadas a APIs.
 Manipulación directa del DOM.
 Suscripciones y limpieza.
+
+
+
+MONGO DB 
+MongoDB es una base de datos NoSQL orientada a documentos, que almacena los datos en formato BSON (Binary JSON). Esto la hace diferente a las bases de datos relacionales, como MySQL, que almacenan los datos en tablas con filas y columnas.
+
+Características principales de MongoDB:
+Almacenamiento basado en documentos: En lugar de almacenar los datos en tablas, MongoDB utiliza documentos en formato JSON (BSON), lo que permite estructuras más flexibles y jerárquicas (arrays, objetos anidados).
+
+Escalabilidad: MongoDB está diseñado para ser altamente escalable, lo que significa que puede manejar grandes volúmenes de datos de manera eficiente, y puedes distribuir tus datos a través de múltiples servidores.
+
+Alta disponibilidad: A través de un sistema de replicación, MongoDB puede asegurarse de que los datos estén disponibles incluso si un servidor falla.
+
+Indexación avanzada: MongoDB soporta la creación de índices en los campos de los documentos, lo que permite realizar consultas rápidas, incluso con grandes cantidades de datos.
+
+Consultas flexibles: MongoDB soporta un poderoso lenguaje de consultas que permite realizar búsquedas, agregaciones y filtrados complejos. También ofrece operaciones de tipo find, update, delete, entre otras.
+
+Modelo de datos flexible: A diferencia de las bases de datos SQL, no es necesario predefinir un esquema rígido. Los documentos pueden tener diferentes estructuras, lo que facilita la evolución de los datos con el tiempo.
+
+Soporte para transacciones: A partir de la versión 4.0, MongoDB ofrece soporte para transacciones ACID, permitiendo operaciones atómicas que afectan a múltiples documentos o colecciones.
+
+Agregación: MongoDB tiene un potente marco de agregación que permite realizar transformaciones complejas sobre los datos, como filtrado, agrupamiento y clasificación.
+
+Componentes clave de MongoDB:
+Base de datos: Un contenedor de colecciones.
+Colección: Es un conjunto de documentos, similar a una tabla en bases de datos SQL.
+Documento: Es una unidad básica de datos, similar a una fila en una base de datos SQL. Los documentos son objetos JSON o BSON.
